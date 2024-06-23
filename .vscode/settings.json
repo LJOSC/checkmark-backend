@@ -1,0 +1,11 @@
+{
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": false,
+    "[json]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+    },
+    "[javascript]": { "editor.formatOnSave": true },
+    "[typescript]": { "editor.formatOnSave": true }
+}
