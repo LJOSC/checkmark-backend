@@ -28,9 +28,7 @@ cd checkmark
 # Install dependencies that will be mentioned after this quick setup section
 npm install
 
-# Copy env.example to .env and edit with your variables
-cp env.example .env
-sed -i 's/your_mongodb_uri/<your_actual_mongodb_uri>/' .env
+# Rename env.example to .env and edit with your variables
 
 # Start the development server
 npm run dev
