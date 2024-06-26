@@ -1,6 +1,10 @@
 # Checkmark Backend
 This beginner-friendly project is primarly the backend part of the Checkmark (To-Do list) project. It gives users the feature to add and manage various daily tasks. Moreover, it is highly suitable for beginners to jumpstart their opensource journey. 
 
+## Fork the Repository on GitHub
+Go to the repository page of Checkmark on GitHub: https://github.com/LJOSC/checkmark-backend.
+Click on the "Fork" button at the top-right corner of the page.
+Then clone the repository to your local system.
 
 ## Setup
 Follow these steps to set up and run the Checkmark project locally:
@@ -8,7 +12,7 @@ Follow these steps to set up and run the Checkmark project locally:
 ### Prerequisites
 Before you begin, ensure you have the following installed on your machine:
 
-+ **Node.js (version 14.x or later)**
++ **Node.js (version 20.x or later)**
 + **npm (Node Package Manager)**
 
 ### Quick Setup
@@ -24,11 +28,9 @@ cd checkmark
 # Install dependencies that will be mentioned after this quick setup section
 npm install
 
-# Create .env file and add environment variables
-cat <<EOT >> .env
-PORT=3000
-MONGODB_URI=your_mongodb_uri
-EOT
+# Copy env.example to .env and edit with your variables
+cp env.example .env
+sed -i 's/your_mongodb_uri/<your_actual_mongodb_uri>/' .env
 
 # Start the development server
 npm run dev
