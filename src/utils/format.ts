@@ -1,6 +1,6 @@
 //@ts-nocheck
 const Format = {
-  error: (code, data, message?) => ({
+  error: (code, message?, data?) => ({
     code,
     data: data || null,
     message: message || 'Something went wrong',
@@ -10,9 +10,9 @@ const Format = {
     data: data || null,
     message: message || 'OK',
   }),
-  noContent: (data, message?) => ({
+  noContent: (message?) => ({
     code: 204,
-    data: data || null,
+    data: null,
     message: message || 'No Content Found',
   }),
   badRequest: (data, message?) => ({
@@ -20,14 +20,14 @@ const Format = {
     data: data || null,
     message: message || 'Bad Request',
   }),
-  unAuthorized: (data, message?) => ({
+  unAuthorized: (message?) => ({
     code: 401,
-    data: data || null,
+    data: null,
     message: message || 'Unauthorized',
   }),
-  notFound: (data, message?) => ({
+  notFound: (message?) => ({
     code: 404,
-    data: data || null,
+    data: null,
     message: message || 'Not found',
   }),
   conflict: (data, message?) => ({
