@@ -15,6 +15,11 @@ interface env {
   JWT_REFRESH_TOKEN_SECRET: string;
   JWT_ACCESS_TOKEN_EXPIRATION?: string;
   JWT_REFRESH_TOKEN_EXPIRATION?: string;
+
+  /* Mailing service */
+  SENDER_NAME: string;
+  SENDER_EMAIL: string;
+  BREVO_API_KEY: string;
 }
 
 const env: env = {
@@ -25,6 +30,9 @@ const env: env = {
   JWT_REFRESH_TOKEN_SECRET: process.env.JWT_REFRESH_TOKEN_SECRET as string,
   JWT_ACCESS_TOKEN_EXPIRATION: '15m',
   JWT_REFRESH_TOKEN_EXPIRATION: '7d',
+  SENDER_NAME: process.env.SENDER_NAME as string,
+  SENDER_EMAIL: process.env.SENDER_EMAIL as string,
+  BREVO_API_KEY: process.env.BREVO_API_KEY as string,
 };
 
 export default env;
