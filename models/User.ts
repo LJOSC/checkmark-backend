@@ -41,7 +41,10 @@ const UserSchema: Schema<UserDoc> = new Schema<UserDoc>({
   verificationToken: {
     type: String,
   },
-});
+  lastLogin: {
+    type: Date,
+  }
+}, {timestamps: true});
 
 // Hash the password before saving the user
 UserSchema.pre<UserDoc>('save', async function (this: UserDoc, next) {
