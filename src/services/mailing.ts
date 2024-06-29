@@ -11,6 +11,12 @@ interface IParams {
   [key: string]: string | number;
 }
 
+interface ISendEmailPayload {
+  recipients: IRecipient[];
+  params: IParams;
+  templateId: number;
+}
+
 const logger = new Logger('mailing.ts');
 let apiInstance = new TransactionalEmailsApi();
 
@@ -23,7 +29,8 @@ apiInstance.setApiKey(0, env.BREVO_API_KEY); // 0 is for apiKey, 1 is for partne
  * @param {Object} params - The parameters to replace in the template { key: value }.
  * @param {string | number} templateId - The ID of the email template to use.
  */
-const sendEmail = async (recipients: IRecipient[], params: IParams, templateId: number): Promise<Boolean | void> => {
+const sendEmail = async (args: ISendEmailPayload): Promise<Boolean | void> => {
+  const { recipients, params, templateId } = args;
   let sendSmtpEmail = new SendSmtpEmail();
 
   sendSmtpEmail.templateId = templateId;
@@ -34,8 +41,10 @@ const sendEmail = async (recipients: IRecipient[], params: IParams, templateId: 
   try {
     await apiInstance.sendTransacEmail(sendSmtpEmail);
     logger.log(`Email of template ${templateId} sent to: ${JSON.stringify(recipients)}`);
+    return true;
   } catch (err) {
     logger.error(`Error sending email: ${err}`);
+    return false;
   }
 };
 

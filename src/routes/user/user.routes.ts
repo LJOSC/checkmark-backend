@@ -10,4 +10,7 @@ router.post('/signup', validate('createUser'), userController.userSignupHandler)
 /* login */
 router.post('/login', validate('loginUser'), userController.userLoginHandler);
 
+/* verify email */
+router.get('/verify/:token', userController.verifyEmailHandler);
+
 export { router as userRouter };
