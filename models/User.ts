@@ -9,39 +9,46 @@ export interface UserDoc extends Document {
   password: string;
   isVerified: boolean;
   verificationToken?: string;
+  lastLogin?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-const UserSchema: Schema<UserDoc> = new Schema<UserDoc>({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
+const UserSchema: Schema<UserDoc> = new Schema<UserDoc>(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+    },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+    },
+    lastLogin: {
+      type: Date,
+    },
   },
-  firstName: {
-    type: String,
-    required: true,
-  },
-  lastName: {
-    type: String,
-  },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  verificationToken: {
-    type: String,
-  },
-});
+  { timestamps: true },
+);
 
 // Hash the password before saving the user
 UserSchema.pre<UserDoc>('save', async function (this: UserDoc, next) {

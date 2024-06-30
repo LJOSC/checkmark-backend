@@ -69,6 +69,10 @@ export const loginUser = async (props: ILoginUserPayload): Promise<any> => {
 
   const { accessToken, refreshToken } = await generateTokens({ id: user.id, email: user.email });
 
+  user.lastLogin = new Date();
+
+  await user.save();
+
   const data = {
     accessToken,
     refreshToken,
