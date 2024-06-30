@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema, Model } from 'mongoose';
 import bcrypt from 'bcrypt';
 
-export interface UserDoc extends Document {
+export interface UserDocUnsafe extends Document {
   firstName: string;
   lastName?: string;
   email: string;
@@ -13,7 +13,9 @@ export interface UserDoc extends Document {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-const UserSchema: Schema<UserDoc> = new Schema<UserDoc>(
+export type UserDoc = Omit<UserDocUnsafe, 'password' | 'verificationToken'>;
+
+const UserSchema: Schema<UserDocUnsafe> = new Schema<UserDocUnsafe>(
   {
     email: {
       type: String,
@@ -35,6 +37,7 @@ const UserSchema: Schema<UserDoc> = new Schema<UserDoc>(
     password: {
       type: String,
       required: true,
+      select: false, // exclude password from query results unless explicitly requested
     },
     isVerified: {
       type: Boolean,
@@ -42,6 +45,7 @@ const UserSchema: Schema<UserDoc> = new Schema<UserDoc>(
     },
     verificationToken: {
       type: String,
+      select: false, // exclude password from query results unless explicitly requested
     },
     lastLogin: {
       type: Date,
@@ -51,7 +55,7 @@ const UserSchema: Schema<UserDoc> = new Schema<UserDoc>(
 );
 
 // Hash the password before saving the user
-UserSchema.pre<UserDoc>('save', async function (this: UserDoc, next) {
+UserSchema.pre<UserDocUnsafe>('save', async function (this: UserDocUnsafe, next) {
   if (!this.isModified('password')) {
     return next();
   }
@@ -65,9 +69,9 @@ UserSchema.pre<UserDoc>('save', async function (this: UserDoc, next) {
 });
 
 // Method to compare passwords
-UserSchema.methods.comparePassword = async function (this: UserDoc, candidatePassword: string): Promise<boolean> {
+UserSchema.methods.comparePassword = async function (this: UserDocUnsafe, candidatePassword: string): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-const User: Model<UserDoc> = mongoose.model<UserDoc>('User', UserSchema);
+const User: Model<UserDocUnsafe> = mongoose.model<UserDocUnsafe>('User', UserSchema);
 export default User;

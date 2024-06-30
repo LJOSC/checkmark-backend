@@ -51,7 +51,6 @@ export const userSignupHandler = async (req: Request, res: Response, next: NextF
 export const userLoginHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const props = req.body;
-
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
