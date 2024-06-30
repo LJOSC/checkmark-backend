@@ -1,4 +1,5 @@
 import User, { UserDoc, UserDocUnsafe } from 'models/User';
+import JwtBlacklist from 'models/JwtBlacklist';
 import { IAddUserPayload } from './user.types';
 import crypto from 'crypto';
 
@@ -34,4 +35,12 @@ export const getUserByEmail = async (email: string): Promise<UserDocUnsafe | nul
 export const getUserById = async (id: string): Promise<UserDoc | null> => {
   const user = await User.findById(id);
   return user;
+};
+
+export const logoutUser = async (refreshToken: string, exp: number): Promise<void> => {
+  await JwtBlacklist.updateOne(
+    { token: refreshToken },
+    { $set: { token: refreshToken, timestamp: exp } },
+    { upsert: true },
+  );
 };

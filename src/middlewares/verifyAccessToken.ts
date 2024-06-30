@@ -2,8 +2,8 @@ import APIError from '../utils/APIError';
 import { NextFunction, Request, Response } from 'express';
 import { getUserById } from 'src/routes/user/user.dao';
 import env from 'src/configs/envVars';
-
-var jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
+import { Ijwt } from 'src/types/auth';
 
 const InvalidTokenError = () =>
   new APIError({
@@ -11,9 +11,9 @@ const InvalidTokenError = () =>
     status: 401,
   });
 
-export const decodeAccessToken = async (token: string) => {
+export const decodeAccessToken = async (token: string): Promise<Ijwt> => {
   try {
-    return await jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET);
+    return jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET) as Ijwt;
   } catch (error) {
     throw InvalidTokenError();
   }

@@ -1,6 +1,6 @@
-import { body } from 'express-validator';
+import { body, param, query } from 'express-validator';
 
-type method = 'createUser' | 'loginUser';
+type method = 'createUser' | 'loginUser' | 'verifyEmail' | 'logout';
 
 export const validate = (method: method) => {
   switch (method) {
@@ -27,6 +27,17 @@ export const validate = (method: method) => {
         ];
       }
       break;
+    case 'verifyEmail':
+      {
+        return [
+          param('token').isString().withMessage('Token is required'),
+          query('email').isEmail().withMessage('Email is required'),
+        ];
+      }
+      break;
+    case 'logout': {
+      return [body('refreshToken').isString().withMessage('Refresh token is required')];
+    }
     default:
       return [];
   }

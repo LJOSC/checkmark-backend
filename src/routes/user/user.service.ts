@@ -7,6 +7,7 @@ import Format from 'src/utils/format';
 import { sendEmail } from 'src/services/mailing';
 import env from 'src/configs/envVars';
 import { UserDoc } from 'models/User';
+import { decodeRefreshToken } from 'src/middlewares/verifyRefreshToken';
 
 const logger = new Logger('user.service.ts');
 
@@ -15,6 +16,7 @@ const SERVICES_NAMES = {
   loginUser: 'loginUser()',
   verifyEmail: 'verifyEmail()',
   refreshAccessToken: 'refreshAccessToken()',
+  logoutUser: 'logoutUser()',
 };
 
 /**
@@ -140,4 +142,30 @@ export const refreshAccessToken = async (user: UserDoc): Promise<any> => {
   const { accessToken } = generateTokens({ id: user.id, email: user.email });
 
   return Format.success({ accessToken }, 'Access token updated successfully');
+};
+
+/**
+ * Logout user
+ *
+ * @param {token} refreshToken - refresh token
+ */
+export const logoutUser = async (refreshToken: string): Promise<any> => {
+  logger.log(`[${SERVICES_NAMES.logoutUser}] is called`);
+
+  let expiryTimestamp = 0;
+  try {
+    const { exp } = await decodeRefreshToken(refreshToken);
+    expiryTimestamp = exp;
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      logger.warn('Expired token received!');
+    } else {
+      logger.warn('Invalid token received!');
+    }
+    return Format.success({}, 'User already logged out');
+  }
+
+  await userDao.logoutUser(refreshToken, expiryTimestamp);
+
+  return Format.success({}, 'User logged out successfully');
 };

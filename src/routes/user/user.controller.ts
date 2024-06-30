@@ -78,6 +78,16 @@ export const userLoginHandler = async (req: Request, res: Response, next: NextFu
  */
 export const verifyEmailHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      throw new APIError({
+        message: messages.bodyInvalid,
+        status: 400,
+        stack: errors.array(),
+      });
+    }
+
     const { token } = req.params;
     const email = req.query.email as string;
 
@@ -107,6 +117,23 @@ export const refreshAccessTokenHandler = async (req: Request, res: Response, nex
     const user = req.user as UserDoc;
     const result: any = await userService.refreshAccessToken(user);
     return res.status(200).send(result);
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+/**
+ * @param {req} req - Requests
+ * @param {res} res - Response
+ * @param {next} next - next
+ * User logout controller
+ */
+export const userLogoutHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const token = req.body.refreshToken;
+    const result: any = await userService.logoutUser(token);
+
+    return res.status(result.code).json(result);
   } catch (error: unknown) {
     next(error);
   }
