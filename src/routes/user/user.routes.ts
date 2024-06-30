@@ -13,4 +13,7 @@ router.post('/login', validate('loginUser'), userController.userLoginHandler);
 /* verify email */
 router.get('/verify/:token', userController.verifyEmailHandler);
 
+/* refresh access token*/
+router.post('/refresh-access-token', userController.refreshAccessTokenHandler);
+
 export { router as userRouter };
