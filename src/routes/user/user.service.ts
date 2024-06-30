@@ -6,6 +6,7 @@ import { generateTokens } from 'src/utils/generateToken';
 import Format from 'src/utils/format';
 import { sendEmail } from 'src/services/mailing';
 import env from 'src/configs/envVars';
+import { UserDoc } from 'models/User';
 
 const logger = new Logger('user.service.ts');
 
@@ -13,6 +14,7 @@ const SERVICES_NAMES = {
   addUser: 'addUser()',
   loginUser: 'loginUser()',
   verifyEmail: 'verifyEmail()',
+  refreshAccessToken: 'refreshAccessToken()',
 };
 
 /**
@@ -125,4 +127,17 @@ export const verifyEmail = async (token: string, email: string): Promise<any> =>
   }
 
   return Format.badRequest('Invalid verification link');
+};
+
+/**
+ * Refresh Access Token
+ *
+ * @param {user} user - user
+ */
+export const refreshAccessToken = async (user: UserDoc): Promise<any> => {
+  logger.log(`[${SERVICES_NAMES.refreshAccessToken}] is called`);
+
+  const { accessToken } = generateTokens({ id: user.id, email: user.email });
+
+  return Format.success({ accessToken }, 'Access token updated successfully');
 };

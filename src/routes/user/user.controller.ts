@@ -6,6 +6,7 @@ import messages from 'src/utils/responseMessages';
 import * as userService from './user.service';
 import { handleMongoError } from 'src/utils/handleMongoError';
 import env from 'src/configs/envVars';
+import { UserDoc } from 'models/User';
 
 /**
  * @param {req} req - Requests
@@ -90,6 +91,22 @@ export const verifyEmailHandler = async (req: Request, res: Response, next: Next
     await userService.verifyEmail(token, email);
 
     return res.redirect(env.FRONTEND_LOGIN_URL);
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+/**
+ * @param {req} req - Requests
+ * @param {res} res - Response
+ * @param {next} next - next
+ * Refresh access token controller
+ */
+export const refreshAccessTokenHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const user = req.user as UserDoc;
+    const result: any = await userService.refreshAccessToken(user);
+    return res.status(200).send(result);
   } catch (error: unknown) {
     next(error);
   }
