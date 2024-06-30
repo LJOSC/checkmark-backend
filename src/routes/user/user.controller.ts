@@ -5,6 +5,7 @@ import APIError from 'src/utils/APIError';
 import messages from 'src/utils/responseMessages';
 import * as userService from './user.service';
 import { handleMongoError } from 'src/utils/handleMongoError';
+import env from 'src/configs/envVars';
 
 /**
  * @param {req} req - Requests
@@ -64,6 +65,32 @@ export const userLoginHandler = async (req: Request, res: Response, next: NextFu
     const result: any = await userService.loginUser(props);
 
     return res.status(result.code).json(result);
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+/**
+ * @param {req} req - Requests
+ * @param {res} res - Response
+ * @param {next} next - next
+ * Verify email controller
+ */
+export const verifyEmailHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const { token } = req.params;
+    const email = req.query.email as string;
+
+    if (!email) {
+      throw new APIError({
+        message: 'Invalid verification link',
+        status: 400,
+      });
+    }
+
+    await userService.verifyEmail(token, email);
+
+    return res.redirect(env.FRONTEND_LOGIN_URL);
   } catch (error: unknown) {
     next(error);
   }

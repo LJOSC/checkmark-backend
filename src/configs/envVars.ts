@@ -20,6 +20,9 @@ interface env {
   SENDER_NAME: string;
   SENDER_EMAIL: string;
   BREVO_API_KEY: string;
+
+  FRONTEND_LOGIN_URL: string;
+  BACKEND_URL: string;
 }
 
 const env: env = {
@@ -33,6 +36,8 @@ const env: env = {
   SENDER_NAME: process.env.SENDER_NAME as string,
   SENDER_EMAIL: process.env.SENDER_EMAIL as string,
   BREVO_API_KEY: process.env.BREVO_API_KEY as string,
+  FRONTEND_LOGIN_URL: process.env.FRONTEND_LOGIN_URL as string,
+  BACKEND_URL: process.env.BACKEND_URL as string,
 };
 
 export default env;
