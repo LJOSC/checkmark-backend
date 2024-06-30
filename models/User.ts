@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Model, Date } from 'mongoose';
+import mongoose, { Document, Schema, Model } from 'mongoose';
 import bcrypt from 'bcrypt';
 
 export interface UserDoc extends Document {
