@@ -18,7 +18,7 @@ interface ISendEmailPayload {
 }
 
 const logger = new Logger('mailing.ts');
-let apiInstance = new TransactionalEmailsApi();
+const apiInstance = new TransactionalEmailsApi();
 
 apiInstance.setApiKey(0, env.BREVO_API_KEY); // 0 is for apiKey, 1 is for partnerKey
 
@@ -29,9 +29,9 @@ apiInstance.setApiKey(0, env.BREVO_API_KEY); // 0 is for apiKey, 1 is for partne
  * @param {Object} params - The parameters to replace in the template { key: value }.
  * @param {string | number} templateId - The ID of the email template to use.
  */
-const sendEmail = async (args: ISendEmailPayload): Promise<Boolean | void> => {
+const sendEmail = async (args: ISendEmailPayload): Promise<boolean | void> => {
   const { recipients, params, templateId } = args;
-  let sendSmtpEmail = new SendSmtpEmail();
+  const sendSmtpEmail = new SendSmtpEmail();
 
   sendSmtpEmail.templateId = templateId;
   sendSmtpEmail.sender = { name: env.SENDER_NAME, email: env.SENDER_EMAIL };
