@@ -6,7 +6,7 @@ import messages from 'src/utils/responseMessages';
 import * as userService from './user.service';
 import { handleMongoError } from 'src/utils/handleMongoError';
 import env from 'src/configs/envVars';
-import { verifyRefreshToken } from 'src/middlewares/verifyRefreshToken';
+import { UserDoc } from 'models/User';
 
 /**
  * @param {req} req - Requests
@@ -104,8 +104,8 @@ export const verifyEmailHandler = async (req: Request, res: Response, next: Next
  */
 export const refreshAccessTokenHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    await verifyRefreshToken(req, res, next);
-    const result: any = await userService.refreshAccessToken(req.user);
+    const user = req.user as UserDoc;
+    const result: any = await userService.refreshAccessToken(user);
     return res.status(200).send(result);
   } catch (error: unknown) {
     next(error);
