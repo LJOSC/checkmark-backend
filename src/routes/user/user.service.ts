@@ -4,12 +4,19 @@ import * as userDao from './user.dao';
 import APIError from 'src/utils/APIError';
 import { generateTokens } from 'src/utils/generateToken';
 import Format from 'src/utils/format';
+import { sendEmail } from 'src/services/mailing';
+import env from 'src/configs/envVars';
+import { UserDoc } from 'models/User';
+import { decodeRefreshToken } from 'src/middlewares/verifyRefreshToken';
 
 const logger = new Logger('user.service.ts');
 
 const SERVICES_NAMES = {
   addUser: 'addUser()',
   loginUser: 'loginUser()',
+  verifyEmail: 'verifyEmail()',
+  refreshAccessToken: 'refreshAccessToken()',
+  logoutUser: 'logoutUser()',
 };
 
 /**
@@ -32,18 +39,21 @@ export const addUser = async (props: IAddUserPayload): Promise<any> => {
     });
   }
 
-  const result: any = await userDao.saveUser(propsClone);
-  const { password: _, ...userWithoutPassword } = result.toObject();
-  const { accessToken, refreshToken } = await generateTokens({ id: result.id, email: result.email });
+  const result = await userDao.saveUser(propsClone);
+  const createdUser = result.toObject();
+  delete createdUser.password;
+  delete createdUser.verificationToken;
 
-  const data = {
-    accessToken,
-    refreshToken,
-    user: userWithoutPassword,
-  };
+  sendEmail({
+    recipients: [{ email: result.email }],
+    params: {
+      verification_url: `${env.BACKEND_URL}/api/user/verify/${result.verificationToken}?email=${result.email}`,
+    },
+    templateId: 1,
+  });
 
   if (result) {
-    return Format.success(data, 'User created successfully');
+    return Format.success(createdUser, 'User created successfully');
   }
 };
 
@@ -63,11 +73,28 @@ export const loginUser = async (props: ILoginUserPayload): Promise<any> => {
   }
 
   const isPasswordMatch = await user.comparePassword(propsClone.password);
+  const isVerified = user.isVerified;
+
+  if (!isVerified) {
+    sendEmail({
+      recipients: [{ email: user.email }],
+      params: {
+        verification_url: `${env.BACKEND_URL}/api/user/verify/${user.verificationToken}?email=${user.email}`,
+      },
+      templateId: 1,
+    });
+    return Format.error(403, 'Email not verified. Verification link sent to your email.');
+  }
+
   if (!isPasswordMatch) {
     return Format.unAuthorized('Invalid credentials');
   }
 
   const { accessToken, refreshToken } = await generateTokens({ id: user.id, email: user.email });
+
+  user.lastLogin = new Date();
+
+  await user.save();
 
   const data = {
     accessToken,
@@ -77,4 +104,68 @@ export const loginUser = async (props: ILoginUserPayload): Promise<any> => {
   if (user) {
     return Format.success(data, 'User login successful');
   }
+};
+
+/**
+ * Verify email
+ *
+ * @param {token} token - verification token
+ * @param {email} email - email
+ */
+export const verifyEmail = async (token: string, email: string): Promise<any> => {
+  logger.log(`[${SERVICES_NAMES.verifyEmail}] is called`);
+
+  const user = await userDao.getUserByEmail(email);
+
+  if (!user) {
+    return Format.notFound('User not found');
+  }
+
+  if (user.verificationToken === token) {
+    user.isVerified = true;
+    user.verificationToken = '';
+    await user.save();
+    return Format.success({}, 'Email verified successfully');
+  }
+
+  return Format.badRequest('Invalid verification link');
+};
+
+/**
+ * Refresh Access Token
+ *
+ * @param {user} user - user
+ */
+export const refreshAccessToken = async (user: UserDoc): Promise<any> => {
+  logger.log(`[${SERVICES_NAMES.refreshAccessToken}] is called`);
+
+  const { accessToken } = generateTokens({ id: user.id, email: user.email });
+
+  return Format.success({ accessToken }, 'Access token updated successfully');
+};
+
+/**
+ * Logout user
+ *
+ * @param {token} refreshToken - refresh token
+ */
+export const logoutUser = async (refreshToken: string): Promise<any> => {
+  logger.log(`[${SERVICES_NAMES.logoutUser}] is called`);
+
+  let expiryTimestamp = 0;
+  try {
+    const { exp } = await decodeRefreshToken(refreshToken);
+    expiryTimestamp = exp;
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      logger.warn('Expired token received!');
+    } else {
+      logger.warn('Invalid token received!');
+    }
+    return Format.success({}, 'User already logged out');
+  }
+
+  await userDao.logoutUser(refreshToken, expiryTimestamp);
+
+  return Format.success({}, 'User logged out successfully');
 };
