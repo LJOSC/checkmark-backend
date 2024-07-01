@@ -12,7 +12,10 @@ router.post('/signup', validate('createUser'), userController.userSignupHandler)
 router.post('/login', validate('loginUser'), userController.userLoginHandler);
 
 /* verify email */
-router.get('/verify/:token', userController.verifyEmailHandler);
+router.get('/verify/:token', validate('verifyEmail'), userController.verifyEmailHandler);
+
+/* logout */
+router.post('/logout', validate('logout'), userController.userLogoutHandler);
 
 /* refresh access token*/
 router.post('/refresh-access-token', verifyRefreshToken, userController.refreshAccessTokenHandler);

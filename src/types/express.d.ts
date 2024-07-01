@@ -1,5 +1,4 @@
-import { Request } from 'express';
-import { UserDoc, UserDocUnsafe } from 'models/User';
+import { UserDoc } from 'models/User';
 
 declare global {
   namespace Express {
