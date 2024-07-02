@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 
 ARG NODE_VERSION=20.12.2
 
@@ -32,7 +31,7 @@ COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY --from=build /usr/src/app/dist ./dist
 COPY .env.production .env.production
 
-EXPOSE 3000
-ENV PORT=3000
-ENV MONGODB_URI=mongodb://localhost:27017/mydatabase
-CMD npm start
+
+
+CMD npm start -- --port=$PORT
+
