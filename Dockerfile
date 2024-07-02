@@ -32,6 +32,6 @@ COPY --from=build /usr/src/app/dist ./dist
 COPY .env.production .env.production
 
 
-ENV PORT=3000
-ENV MONGODB_URI=mongodb://localhost:27017/mydatabase
-CMD npm start
+
+CMD npm start -- --port=$PORT
+

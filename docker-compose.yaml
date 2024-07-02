@@ -5,24 +5,24 @@ services:
       context: .
     environment:
       NODE_ENV: production
-      MONGODB_URI: mongodb://mongodb:27017/CheckmarkBackend  # Use service name
+      MONGODB_URI: mongodb://mongodb:27017/CheckmarkBackend  
     ports:
       - "3000:3000"
     env_file:
       - .env.production 
     depends_on:
-      - mongodb  # Ensure MongoDB container starts before the server
+      - mongodb 
   
   mongodb:
     image: mongo:latest
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password  # Specify your MongoDB password here
-      MONGO_INITDB_DATABASE: CheckmarkBackend  # Updated database name
+      MONGO_INITDB_ROOT_PASSWORD: password  
+      MONGO_INITDB_DATABASE: CheckmarkBackend  
     ports:
       - "27017:27017"
     volumes:
-      - mongodb_data:/data/db  # Persist MongoDB data
+      - mongodb_data:/data/db  
   
 volumes:
   mongodb_data:
