@@ -7,22 +7,11 @@ services:
       NODE_ENV: production
       MONGODB_URI: mongodb://mongodb:27017/CheckmarkBackend  
     ports:
-      - "3000:3000"
+      - ${PORT:-3001}:${PORT:-3001}
     env_file:
       - .env.production 
-    depends_on:
-      - mongodb 
-  
-  mongodb:
-    image: mongo:latest
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password  
-      MONGO_INITDB_DATABASE: CheckmarkBackend  
-    ports:
-      - "27017:27017"
     volumes:
-      - mongodb_data:/data/db  
-  
+      - logs:/app/logs
+    restart: always
 volumes:
-  mongodb_data:
+  logs:

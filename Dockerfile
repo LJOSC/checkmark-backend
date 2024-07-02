@@ -1,8 +1,6 @@
 
-ARG NODE_VERSION=20.12.2
-
-FROM node:${NODE_VERSION}-alpine as base
-WORKDIR /usr/src/app
+FROM node:20-alpine as base
+WORKDIR /app
 
 FROM base as deps
 RUN --mount=type=bind,source=package.json,target=package.json \
@@ -19,19 +17,18 @@ COPY . .
 RUN npm run build
 
 FROM base as final
-ENV NODE_ENV production
-USER node
-WORKDIR /usr/src/app
-USER root
-RUN mkdir -p /usr/src/app/logs/prod && \
-    chown -R node:node /usr/src/app/logs
-USER node
+
+
+WORKDIR /app
+
+RUN mkdir -p /app/logs/prod && \
+    chown -R node:node /app/logs
 COPY package.json .
-COPY --from=deps /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/dist ./dist
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
 COPY .env.production .env.production
 
 
 
-CMD npm start -- --port=$PORT
+CMD npm start
 
