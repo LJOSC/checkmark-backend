@@ -139,7 +139,7 @@ export const verifyEmail = async (token: string, email: string): Promise<any> =>
 export const refreshAccessToken = async (user: UserDoc): Promise<any> => {
   logger.log(`[${SERVICES_NAMES.refreshAccessToken}] is called`);
 
-  const { accessToken } = generateTokens({ id: user.id, email: user.email });
+  const { accessToken, refreshToken } = generateTokens({ id: user.id, email: user.email });
 
   return Format.success({ accessToken }, 'Access token updated successfully');
 };

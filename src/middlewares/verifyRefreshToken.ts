@@ -59,6 +59,7 @@ export const verifyRefreshToken = async (req: Request, _: Response, next: NextFu
     }
 
     req.user = user;
+    req.token = tokenValue;
     next();
   } catch (error) {
     next(error);
