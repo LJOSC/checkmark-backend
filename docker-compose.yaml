@@ -1,0 +1,17 @@
+
+services:
+  server:
+    build:
+      context: .
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: mongodb://mongodb:27017/CheckmarkBackend  
+    ports:
+      - ${PORT:-3001}:${PORT:-3001}
+    env_file:
+      - .env.production 
+    volumes:
+      - logs:/app/logs
+    restart: always
+volumes:
+  logs:
