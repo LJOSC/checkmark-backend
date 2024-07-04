@@ -1,6 +1,6 @@
 import APIError from '../utils/APIError';
 import { NextFunction, Request, Response } from 'express';
-import { getUserById } from 'src/routes/user/user.dao';
+import { checkTokenInBlackList, getUserById } from 'src/routes/user/user.dao';
 import env from 'src/configs/envVars';
 import jwt from 'jsonwebtoken';
 import { Ijwt } from 'src/types/auth';
@@ -49,6 +49,12 @@ export const verifyRefreshToken = async (req: Request, _: Response, next: NextFu
     const { id } = await decodeRefreshToken(tokenValue);
 
     if (!id) {
+      throw InvalidTokenError();
+    }
+
+    const isInvalidToken = await checkTokenInBlackList(tokenValue);
+
+    if (isInvalidToken) {
       throw InvalidTokenError();
     }
 

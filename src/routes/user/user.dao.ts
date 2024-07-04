@@ -44,3 +44,8 @@ export const logoutUser = async (refreshToken: string, exp: number): Promise<voi
     { upsert: true },
   );
 };
+
+export const checkTokenInBlackList = async (refreshToken: string): Promise<boolean> => {
+  const response = await JwtBlacklist.exists({ token: refreshToken });
+  return response ? true : false;
+};
