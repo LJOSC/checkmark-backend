@@ -19,11 +19,14 @@ class MongooseService {
 
     mongoose.connection.on('error', (err) => {
       logger.error(`Mongoose connection error: ${err?.message}`);
+      if (err?.message === 'Authentication failed.') {
+        process.exit(1);
+      }
     });
 
     mongoose.connection.on('disconnected', () => {
       logger.warn('Mongoose disconnected. Attempting to reconnect...');
-      this.reconnect();
+      setTimeout(() => this.reconnect(), this.reconnectInterval);
     });
   }
 
@@ -33,7 +36,6 @@ class MongooseService {
       await mongoose.connect(this.dbUri, this.options);
     } catch (err) {
       logger.error(`Mongoose initial connection error: ${err?.message}`);
-      setTimeout(() => this.connect(), this.reconnectInterval);
     }
   }
 
@@ -43,7 +45,6 @@ class MongooseService {
       await mongoose.connect(this.dbUri, this.options);
     } catch (err) {
       logger.error(`Mongoose reconnection error: ${err?.message}`);
-      setTimeout(() => this.reconnect(), this.reconnectInterval);
     }
   }
 }
