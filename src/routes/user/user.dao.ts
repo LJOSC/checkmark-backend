@@ -49,3 +49,8 @@ export const checkTokenInBlackList = async (refreshToken: string): Promise<boole
   const response = await JwtBlacklist.exists({ token: refreshToken });
   return response ? true : false;
 };
+
+export const filterBlackListTokens = async (): Promise<void> => {
+  const now = Date.now();
+  await JwtBlacklist.deleteMany({ timestamp: { $lt: now } });
+};

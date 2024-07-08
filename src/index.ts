@@ -4,6 +4,7 @@ import rootRouter from 'src/routes';
 import Logger from 'src/configs/logger';
 import MongooseService from './services/db';
 import { ConvertError } from './utils/errors';
+import 'src/cron';
 
 // Initialize the logger
 const logger = new Logger('index.ts');
