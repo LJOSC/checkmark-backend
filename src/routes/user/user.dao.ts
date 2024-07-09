@@ -27,8 +27,13 @@ export const saveUser = async (props: IAddUserPayload): Promise<UserDocUnsafe> =
 };
 
 export const getUserByEmail = async (email: string): Promise<UserDocUnsafe | null> => {
+  const user = await User.findOne({ email });
+  return user;
+};
+
+export const getUserByEmailInsecure = async (email: string): Promise<UserDocUnsafe | null> => {
   // Don't use this method unless you need to get the password or verification token
-  const user = await User.findOne({ email }).select('+password +verificationToken');
+  const user = await User.findOne({ email }).select('+password +verificationToken +otp +otpExpires');
   return user;
 };
 

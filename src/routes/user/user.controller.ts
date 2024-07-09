@@ -115,6 +115,16 @@ export const verifyEmailHandler = async (req: Request, res: Response, next: Next
 export const refreshAccessTokenHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const user = req.user as UserDoc;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      throw new APIError({
+        message: messages.bodyInvalid,
+        status: 400,
+        stack: errors.array(),
+      });
+    }
+
     const result: any = await userService.refreshAccessToken(user);
     return res.status(200).send(result);
   } catch (error: unknown) {
@@ -131,7 +141,71 @@ export const refreshAccessTokenHandler = async (req: Request, res: Response, nex
 export const userLogoutHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const token = req.body.refreshToken;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      throw new APIError({
+        message: messages.bodyInvalid,
+        status: 400,
+        stack: errors.array(),
+      });
+    }
+
     const result: any = await userService.logoutUser(token);
+
+    return res.status(result.code).json(result);
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+/**
+ * @param {req} req - Requests
+ * @param {res} res - Response
+ * @param {next} next - next
+ * Forgot password controller
+ */
+export const forgotPasswordHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const email = req.body.email;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      throw new APIError({
+        message: messages.bodyInvalid,
+        status: 400,
+        stack: errors.array(),
+      });
+    }
+
+    const result: any = await userService.forgotPassword(email);
+
+    return res.status(result.code).json(result);
+  } catch (error: unknown) {
+    next(error);
+  }
+};
+
+/**
+ * @param {req} req - Requests
+ * @param {res} res - Response
+ * @param {next} next - next
+ * Reset password controller
+ */
+export const resetPasswordHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+  try {
+    const props = req.body;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      throw new APIError({
+        message: messages.bodyInvalid,
+        status: 400,
+        stack: errors.array(),
+      });
+    }
+
+    const result: any = await userService.resetPassword(props);
 
     return res.status(result.code).json(result);
   } catch (error: unknown) {
