@@ -9,6 +9,8 @@ export interface UserDocUnsafe extends Document {
   password: string;
   isVerified: boolean;
   verificationToken?: string;
+  otp?: string;
+  otpExpires?: Date;
   lastLogin?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
@@ -46,6 +48,16 @@ const UserSchema: Schema<UserDocUnsafe> = new Schema<UserDocUnsafe>(
     verificationToken: {
       type: String,
       select: false, // exclude password from query results unless explicitly requested
+    },
+    otp: {
+      type: String,
+      required: false,
+      select: false,
+    },
+    otpExpires: {
+      type: Date,
+      required: false,
+      select: false,
     },
     lastLogin: {
       type: Date,

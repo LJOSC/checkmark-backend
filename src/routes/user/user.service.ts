@@ -1,3 +1,5 @@
+import * as crypto from 'crypto';
+import * as bcrypt from 'bcrypt';
 import Logger from 'src/configs/logger';
 import { IAddUserPayload, ILoginUserPayload } from './user.types';
 import * as userDao from './user.dao';
@@ -17,6 +19,7 @@ const SERVICES_NAMES = {
   verifyEmail: 'verifyEmail()',
   refreshAccessToken: 'refreshAccessToken()',
   logoutUser: 'logoutUser()',
+  forgotPassword: 'forgotPassword()',
 };
 
 /**
@@ -66,7 +69,7 @@ export const loginUser = async (props: ILoginUserPayload): Promise<any> => {
   logger.log(`[${SERVICES_NAMES.loginUser}] is called`);
 
   const propsClone = Object.assign({}, props);
-  const user = await userDao.getUserByEmail(propsClone.email);
+  const user = await userDao.getUserByEmailInsecure(propsClone.email);
 
   if (!user) {
     return Format.notFound('User not found');
@@ -115,7 +118,7 @@ export const loginUser = async (props: ILoginUserPayload): Promise<any> => {
 export const verifyEmail = async (token: string, email: string): Promise<any> => {
   logger.log(`[${SERVICES_NAMES.verifyEmail}] is called`);
 
-  const user = await userDao.getUserByEmail(email);
+  const user = await userDao.getUserByEmailInsecure(email);
 
   if (!user) {
     return Format.notFound('User not found');
@@ -168,4 +171,71 @@ export const logoutUser = async (refreshToken: string): Promise<any> => {
   await userDao.logoutUser(refreshToken, expiryTimestamp);
 
   return Format.success({}, 'User logged out successfully');
+};
+
+/**
+ * Forgot password - get the OTP
+ *
+ * @param {email} email - email
+ */
+export const forgotPassword = async (email: string): Promise<any> => {
+  logger.log(`[${SERVICES_NAMES.forgotPassword}] is called`);
+
+  const user = await userDao.getUserByEmail(email);
+
+  if (!user) {
+    return Format.notFound('User not found');
+  }
+
+  const otp = crypto.randomBytes(6).toString('hex');
+  const salt = await bcrypt.genSalt(10);
+  const hashedOtp = await bcrypt.hash(otp, salt);
+
+  user.otp = hashedOtp;
+  user.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+
+  await sendEmail({
+    recipients: [{ email: user.email }],
+    params: {
+      otp,
+    },
+    templateId: 2,
+  });
+
+  await user.save();
+
+  return Format.success({}, 'OTP sent to your email');
+};
+
+/**
+ * Reset Password - Update password
+ *
+ * @param {props} props - email, password and otp
+ */
+export const resetPassword = async (props: { email: string; password: string; otp: string }): Promise<any> => {
+  logger.log(`[${SERVICES_NAMES.forgotPassword}] is called`);
+
+  const user = await userDao.getUserByEmailInsecure(props.email);
+
+  if (!user) {
+    return Format.notFound('User not found');
+  }
+
+  if (!user.otpExpires || !user.otp || user.otpExpires < new Date()) {
+    return Format.badRequest('OTP expired');
+  }
+
+  const isOtpMatch = bcrypt.compare(props.otp, user.otp);
+
+  if (!isOtpMatch) {
+    return Format.badRequest('Invalid OTP');
+  }
+
+  user.password = props.password;
+  user.otp = undefined;
+  user.otpExpires = undefined;
+
+  await user.save();
+
+  return Format.success({}, 'Password reset successfully');
 };

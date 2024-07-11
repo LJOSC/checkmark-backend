@@ -20,4 +20,10 @@ router.post('/logout', validate('logout'), userController.userLogoutHandler);
 /* refresh access token*/
 router.post('/refresh-access-token', verifyRefreshToken, userController.refreshAccessTokenHandler);
 
+/* forgot password */
+router.post('/forgot-password', validate('forgotPassword'), userController.forgotPasswordHandler);
+
+/* reset password */
+router.post('/reset-password', validate('resetPassword'), userController.resetPasswordHandler);
+
 export { router as userRouter };
