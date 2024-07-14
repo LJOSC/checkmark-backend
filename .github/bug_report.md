@@ -4,7 +4,7 @@
 
 ### Steps to Reproduce
 
-1. [First step]
+1.
 
 ### Expected Behavior
 
