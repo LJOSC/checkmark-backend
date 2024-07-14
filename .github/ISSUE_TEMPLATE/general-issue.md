@@ -1,7 +1,7 @@
 ---
 name: General Issue
 about: Describe your issue
-title: General Issue
+title: 
 labels: ''
 assignees: ''
 
