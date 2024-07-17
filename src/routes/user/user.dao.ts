@@ -59,3 +59,13 @@ export const filterBlackListTokens = async (): Promise<void> => {
   const now = Date.now();
   await JwtBlacklist.deleteMany({ timestamp: { $lt: now } });
 };
+
+export const blacklistToken = async (token: string): Promise<boolean> => {
+  try {
+    await JwtBlacklist.updateOne({ token }, { $setOnInsert: { timestamp: new Date() } }, { upsert: true });
+    return true;
+  } catch (error) {
+    console.error(`Failed to blacklist token '${token}':`, error);
+    return false;
+  }
+};

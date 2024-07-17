@@ -138,13 +138,14 @@ export const verifyEmail = async (token: string, email: string): Promise<any> =>
  * Refresh Access Token
  *
  * @param {user} user - user
+ * @param {token} oldToken - refresh token
  */
-export const refreshAccessToken = async (user: UserDoc): Promise<any> => {
+export const refreshAccessToken = async (user: UserDoc, oldToken: string): Promise<any> => {
   logger.log(`[${SERVICES_NAMES.refreshAccessToken}] is called`);
-
-  const { accessToken } = generateTokens({ id: user.id, email: user.email });
-
-  return Format.success({ accessToken }, 'Access token updated successfully');
+  await userDao.blacklistToken(oldToken);
+  const { accessToken, refreshToken } = generateTokens({ id: user.id, email: user.email });
+  const data = { accessToken, refreshToken };
+  return Format.success(data, 'Access,Refresh token updated successfully');
 };
 
 /**

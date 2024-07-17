@@ -115,6 +115,7 @@ export const verifyEmailHandler = async (req: Request, res: Response, next: Next
 export const refreshAccessTokenHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const user = req.user as UserDoc;
+    const oldToken = req.body.refreshToken;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -125,7 +126,7 @@ export const refreshAccessTokenHandler = async (req: Request, res: Response, nex
       });
     }
 
-    const result: any = await userService.refreshAccessToken(user);
+    const result: any = await userService.refreshAccessToken(user, oldToken);
     return res.status(200).send(result);
   } catch (error: unknown) {
     next(error);
