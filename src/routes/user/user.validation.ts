@@ -1,6 +1,13 @@
 import { body, param, query } from 'express-validator';
 
-type method = 'createUser' | 'loginUser' | 'verifyEmail' | 'logout' | 'forgotPassword' | 'resetPassword';
+type method =
+  | 'createUser'
+  | 'loginUser'
+  | 'verifyEmail'
+  | 'logout'
+  | 'forgotPassword'
+  | 'resetPassword'
+  | 'authTokenChecker';
 
 export const validate = (method: method) => {
   switch (method) {
@@ -35,11 +42,11 @@ export const validate = (method: method) => {
         ];
       }
       break;
-    case 'logout':
-      {
-        return [body('refreshToken').isString().withMessage('Refresh token is required')];
-      }
-      break;
+    // case 'logout':
+    //   {
+    //     return [body('refreshToken').isString().withMessage('Refresh token is required')];
+    //   }
+    //   break;
     case 'forgotPassword':
       {
         return [body('email').isEmail().withMessage('Email is required')];
@@ -52,6 +59,11 @@ export const validate = (method: method) => {
           body('password').isString().withMessage('Password is required'),
           body('otp').isString().withMessage('otp is required'),
         ];
+      }
+      break;
+    case 'authTokenChecker':
+      {
+        return [body('refreshToken').isString().withMessage('Refresh token is required')];
       }
       break;
     default:
