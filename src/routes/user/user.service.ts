@@ -142,7 +142,12 @@ export const verifyEmail = async (token: string, email: string): Promise<any> =>
  */
 export const refreshAccessToken = async (user: UserDoc, oldToken: string): Promise<any> => {
   logger.log(`[${SERVICES_NAMES.refreshAccessToken}] is called`);
-  await userDao.blacklistToken(oldToken);
+  let expiryTimestamp = 0;
+
+  const { exp } = await decodeRefreshToken(oldToken);
+  expiryTimestamp = exp;
+  await userDao.blacklistToken(oldToken, expiryTimestamp);
+
   const { accessToken, refreshToken } = generateTokens({ id: user.id, email: user.email });
   const data = { accessToken, refreshToken };
   return Format.success(data, 'Access,Refresh token updated successfully');
@@ -169,7 +174,7 @@ export const logoutUser = async (refreshToken: string): Promise<any> => {
     return Format.success({}, 'User already logged out');
   }
 
-  await userDao.logoutUser(refreshToken, expiryTimestamp);
+  await userDao.blacklistToken(refreshToken, expiryTimestamp);
 
   return Format.success({}, 'User logged out successfully');
 };

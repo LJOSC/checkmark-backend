@@ -42,7 +42,7 @@ export const getUserById = async (id: string): Promise<UserDoc | null> => {
   return user;
 };
 
-export const logoutUser = async (refreshToken: string, exp: number): Promise<void> => {
+export const blacklistToken = async (refreshToken: string, exp: number): Promise<void> => {
   await JwtBlacklist.updateOne(
     { token: refreshToken },
     { $set: { token: refreshToken, timestamp: exp } },
@@ -58,14 +58,4 @@ export const checkTokenInBlackList = async (refreshToken: string): Promise<boole
 export const filterBlackListTokens = async (): Promise<void> => {
   const now = Date.now();
   await JwtBlacklist.deleteMany({ timestamp: { $lt: now } });
-};
-
-export const blacklistToken = async (token: string): Promise<boolean> => {
-  try {
-    await JwtBlacklist.updateOne({ token }, { $setOnInsert: { timestamp: new Date() } }, { upsert: true });
-    return true;
-  } catch (error) {
-    console.error(`Failed to blacklist token '${token}':`, error);
-    return false;
-  }
 };
