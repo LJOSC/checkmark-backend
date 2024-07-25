@@ -15,10 +15,15 @@ router.post('/login', validate('loginUser'), userController.userLoginHandler);
 router.get('/verify/:token', validate('verifyEmail'), userController.verifyEmailHandler);
 
 /* logout */
-router.post('/logout', validate('logout'), userController.userLogoutHandler);
+router.post('/logout', validate('authTokenChecker'), userController.userLogoutHandler);
 
 /* refresh access token*/
-router.post('/refresh-access-token', verifyRefreshToken, userController.refreshAccessTokenHandler);
+router.post(
+  '/refresh-access-token',
+  validate('authTokenChecker'),
+  verifyRefreshToken,
+  userController.refreshAccessTokenHandler,
+);
 
 /* forgot password */
 router.post('/forgot-password', validate('forgotPassword'), userController.forgotPasswordHandler);

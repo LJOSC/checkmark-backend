@@ -42,7 +42,7 @@ export const getUserById = async (id: string): Promise<UserDoc | null> => {
   return user;
 };
 
-export const logoutUser = async (refreshToken: string, exp: number): Promise<void> => {
+export const blacklistToken = async (refreshToken: string, exp: number): Promise<void> => {
   await JwtBlacklist.updateOne(
     { token: refreshToken },
     { $set: { token: refreshToken, timestamp: exp } },
