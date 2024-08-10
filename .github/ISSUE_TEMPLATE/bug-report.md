@@ -1,8 +1,8 @@
 ---
-name: General Issue
-about: Describe your issue
-title: 
-labels: ''
+name: Bug Report
+about: Describe the issue
+title: ''
+labels: bug
 assignees: ''
 
 ---
