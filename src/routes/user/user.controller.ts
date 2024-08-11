@@ -62,7 +62,7 @@ export const userLoginHandler = async (req: Request, res: Response, next: NextFu
       });
     }
 
-    const result: any = await userService.loginUser(props);
+    const result: any = await userService.loginUser(props, res);
 
     return res.status(result.code).json(result);
   } catch (error: unknown) {
@@ -126,7 +126,7 @@ export const refreshAccessTokenHandler = async (req: Request, res: Response, nex
       });
     }
 
-    const result: any = await userService.refreshAccessToken(user, oldToken);
+    const result: any = await userService.refreshAccessToken(user, oldToken, res);
     return res.status(200).send(result);
   } catch (error: unknown) {
     next(error);
@@ -153,6 +153,7 @@ export const userLogoutHandler = async (req: Request, res: Response, next: NextF
     }
 
     const result: any = await userService.logoutUser(token);
+    res.clearCookie('refreshToken');
 
     return res.status(result.code).json(result);
   } catch (error: unknown) {
