@@ -10,6 +10,7 @@ import { sendEmail } from 'src/services/mailing';
 import env from 'src/configs/envVars';
 import { UserDoc } from 'models/User';
 import { decodeRefreshToken } from 'src/middlewares/verifyRefreshToken';
+import { Response } from 'express';
 
 const logger = new Logger('user.service.ts');
 
@@ -65,7 +66,7 @@ export const addUser = async (props: IAddUserPayload): Promise<any> => {
  *
  * @param {props} props - user credentials
  */
-export const loginUser = async (props: ILoginUserPayload): Promise<any> => {
+export const loginUser = async (props: ILoginUserPayload, res: Response): Promise<any> => {
   logger.log(`[${SERVICES_NAMES.loginUser}] is called`);
 
   const propsClone = Object.assign({}, props);
@@ -93,15 +94,21 @@ export const loginUser = async (props: ILoginUserPayload): Promise<any> => {
     return Format.unAuthorized('Invalid credentials');
   }
 
-  const { accessToken, refreshToken } = await generateTokens({ id: user.id, email: user.email });
+  const { accessToken, refreshToken } = generateTokens({ id: user.id, email: user.email });
 
   user.lastLogin = new Date();
 
   await user.save();
 
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+  });
+
   const data = {
     accessToken,
-    refreshToken,
   };
 
   if (user) {
@@ -140,7 +147,7 @@ export const verifyEmail = async (token: string, email: string): Promise<any> =>
  * @param {user} user - user
  * @param {token} oldToken - refresh token
  */
-export const refreshAccessToken = async (user: UserDoc, oldToken: string): Promise<any> => {
+export const refreshAccessToken = async (user: UserDoc, oldToken: string, res: Response): Promise<any> => {
   logger.log(`[${SERVICES_NAMES.refreshAccessToken}] is called`);
   let expiryTimestamp = 0;
 
@@ -149,7 +156,13 @@ export const refreshAccessToken = async (user: UserDoc, oldToken: string): Promi
   await userDao.blacklistToken(oldToken, expiryTimestamp);
 
   const { accessToken, refreshToken } = generateTokens({ id: user.id, email: user.email });
-  const data = { accessToken, refreshToken };
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+  });
+  const data = { accessToken };
   return Format.success(data, 'Access,Refresh token updated successfully');
 };
 
