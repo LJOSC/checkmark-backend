@@ -27,7 +27,7 @@ export const decodeRefreshToken = async (token: string): Promise<Ijwt> => {
  */
 export const verifyRefreshToken = async (req: Request, _: Response, next: NextFunction) => {
   try {
-    const { refreshToken } = req.body;
+    const { refreshToken } = req.cookies;
 
     const { id } = await decodeRefreshToken(refreshToken);
 

@@ -115,7 +115,7 @@ export const verifyEmailHandler = async (req: Request, res: Response, next: Next
 export const refreshAccessTokenHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const user = req.user as UserDoc;
-    const oldToken = req.body.refreshToken;
+    const oldToken = req.cookies.refreshToken;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -141,7 +141,7 @@ export const refreshAccessTokenHandler = async (req: Request, res: Response, nex
  */
 export const userLogoutHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const token = req.body.refreshToken;
+    const token = req.cookies.refreshToken;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -150,6 +150,9 @@ export const userLogoutHandler = async (req: Request, res: Response, next: NextF
         status: 400,
         stack: errors.array(),
       });
+    }
+    if (!token) {
+      return res.status(200).json({ message: 'User already logged out' });
     }
 
     const result: any = await userService.logoutUser(token);
