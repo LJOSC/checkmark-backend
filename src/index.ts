@@ -17,7 +17,7 @@ app.use(express.json({ limit: '10mb' }));
 
 // cors setup
 const corsOptions: CorsOptions = {
-  origin: ['*', 'http://localhost:5173'],
+  origin: [process.env.FRONTEND_HOST as string],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
