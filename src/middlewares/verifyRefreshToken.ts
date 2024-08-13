@@ -29,6 +29,10 @@ export const verifyRefreshToken = async (req: Request, _: Response, next: NextFu
   try {
     const { refreshToken } = req.cookies;
 
+    if (!refreshToken) {
+      throw new Error('No refresh token provided');
+    }
+
     const { id } = await decodeRefreshToken(refreshToken);
 
     if (!id) {
