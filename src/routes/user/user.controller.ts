@@ -62,7 +62,7 @@ export const userLoginHandler = async (req: Request, res: Response, next: NextFu
       });
     }
 
-    const result: any = await userService.loginUser(props);
+    const result: any = await userService.loginUser(props, res);
 
     return res.status(result.code).json(result);
   } catch (error: unknown) {
@@ -115,6 +115,7 @@ export const verifyEmailHandler = async (req: Request, res: Response, next: Next
 export const refreshAccessTokenHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
     const user = req.user as UserDoc;
+    const oldToken = req.cookies.refreshToken;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -125,7 +126,7 @@ export const refreshAccessTokenHandler = async (req: Request, res: Response, nex
       });
     }
 
-    const result: any = await userService.refreshAccessToken(user);
+    const result: any = await userService.refreshAccessToken(user, oldToken, res);
     return res.status(200).send(result);
   } catch (error: unknown) {
     next(error);
@@ -140,7 +141,7 @@ export const refreshAccessTokenHandler = async (req: Request, res: Response, nex
  */
 export const userLogoutHandler = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
   try {
-    const token = req.body.refreshToken;
+    const token = req.cookies.refreshToken;
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -150,8 +151,12 @@ export const userLogoutHandler = async (req: Request, res: Response, next: NextF
         stack: errors.array(),
       });
     }
+    if (!token) {
+      return res.status(200).json({ message: 'User already logged out' });
+    }
 
     const result: any = await userService.logoutUser(token);
+    res.clearCookie('refreshToken');
 
     return res.status(result.code).json(result);
   } catch (error: unknown) {

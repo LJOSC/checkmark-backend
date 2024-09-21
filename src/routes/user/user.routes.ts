@@ -15,7 +15,7 @@ router.post('/login', validate('loginUser'), userController.userLoginHandler);
 router.get('/verify/:token', validate('verifyEmail'), userController.verifyEmailHandler);
 
 /* logout */
-router.post('/logout', validate('logout'), userController.userLogoutHandler);
+router.post('/logout', userController.userLogoutHandler);
 
 /* refresh access token*/
 router.post('/refresh-access-token', verifyRefreshToken, userController.refreshAccessTokenHandler);

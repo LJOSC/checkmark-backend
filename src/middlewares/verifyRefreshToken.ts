@@ -23,36 +23,23 @@ export const decodeRefreshToken = async (token: string): Promise<Ijwt> => {
  * @param {req} req - Requests
  * @param {res} _ - Response
  * @param {next} next - next
- * Header Authentication
+ * Body Authentication
  */
 export const verifyRefreshToken = async (req: Request, _: Response, next: NextFunction) => {
   try {
-    const props = req.headers;
+    const { refreshToken } = req.cookies;
 
-    const tokenNotPresent = !props.authorization;
-    if (tokenNotPresent) {
-      throw new APIError({
-        message: 'Authorization not provided!',
-        status: 401,
-      });
+    if (!refreshToken) {
+      throw new Error('No refresh token provided');
     }
 
-    const authHeader = props.authorization as string;
-
-    const tokenType = authHeader.split(' ')[0];
-    const tokenValue = authHeader.split(' ')[1];
-
-    if (tokenType !== 'Bearer') {
-      throw InvalidTokenError();
-    }
-
-    const { id } = await decodeRefreshToken(tokenValue);
+    const { id } = await decodeRefreshToken(refreshToken);
 
     if (!id) {
       throw InvalidTokenError();
     }
 
-    const isInvalidToken = await checkTokenInBlackList(tokenValue);
+    const isInvalidToken = await checkTokenInBlackList(refreshToken);
 
     if (isInvalidToken) {
       throw InvalidTokenError();
